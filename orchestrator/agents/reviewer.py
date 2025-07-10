@@ -131,7 +131,31 @@ Provide specific, actionable recommendations with file paths and line numbers wh
             if response.startswith("```"):
                 response = response[3:]
             
-            review_report = json.loads(response)
+            # Find the JSON object boundaries
+            response = response.strip()
+            
+            # Try to find the start and end of the JSON object
+            start_idx = response.find('{')
+            if start_idx == -1:
+                raise json.JSONDecodeError("No JSON object found", response, 0)
+            
+            # Find the matching closing brace
+            brace_count = 0
+            end_idx = start_idx
+            
+            for i, char in enumerate(response[start_idx:], start_idx):
+                if char == '{':
+                    brace_count += 1
+                elif char == '}':
+                    brace_count -= 1
+                    if brace_count == 0:
+                        end_idx = i
+                        break
+            
+            # Extract just the JSON part
+            json_response = response[start_idx:end_idx + 1]
+            
+            review_report = json.loads(json_response)
             
             # Validate the review report has required fields
             required_fields = ["review_summary", "critical_issues", "medium_issues", "low_issues"]

@@ -92,7 +92,31 @@ Respond with a comprehensive JSON specification following the format specified i
             if response.startswith("```"):
                 response = response[3:]
             
-            technical_spec = json.loads(response)
+            # Find the JSON object boundaries
+            response = response.strip()
+            
+            # Try to find the start and end of the JSON object
+            start_idx = response.find('{')
+            if start_idx == -1:
+                raise json.JSONDecodeError("No JSON object found", response, 0)
+            
+            # Find the matching closing brace
+            brace_count = 0
+            end_idx = start_idx
+            
+            for i, char in enumerate(response[start_idx:], start_idx):
+                if char == '{':
+                    brace_count += 1
+                elif char == '}':
+                    brace_count -= 1
+                    if brace_count == 0:
+                        end_idx = i
+                        break
+            
+            # Extract just the JSON part
+            json_response = response[start_idx:end_idx + 1]
+            
+            technical_spec = json.loads(json_response)
             
             # Validate the specification has required fields
             required_fields = ["project_overview", "technical_stack", "features", "data_models"]
