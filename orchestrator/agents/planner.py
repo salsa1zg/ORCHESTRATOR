@@ -1,0 +1,201 @@
+import json
+import os
+from typing import Dict, Any, Optional
+from rich.console import Console
+from rich.panel import Panel
+
+from utils.ollama_client import OllamaClient
+
+console = Console()
+
+class PlannerAgent:
+    def __init__(self, ollama_client: OllamaClient):
+        self.ollama_client = ollama_client
+        self.model = "deepseek-chat"
+        self.agent_name = "Planner (Product Manager)"
+        
+    def load_prompt(self) -> str:
+        """Load the planner prompt from file."""
+        try:
+            with open("prompts/planner_prompt.txt", "r") as f:
+                return f.read()
+        except FileNotFoundError:
+            console.print("[red]Error: planner_prompt.txt not found[/red]")
+            return ""
+    
+    def analyze_requirements(self, project_spec_path: str) -> Optional[Dict[str, Any]]:
+        """Analyze project requirements and create detailed technical specifications."""
+        console.print(Panel(
+            f"🔍 {self.agent_name} is analyzing project requirements...",
+            title="Planning Phase",
+            border_style="blue"
+        ))
+        
+        # Load project specification
+        try:
+            with open(project_spec_path, "r") as f:
+                project_spec = json.load(f)
+        except FileNotFoundError:
+            console.print(f"[red]Error: Project specification file not found: {project_spec_path}[/red]")
+            return None
+        except json.JSONDecodeError:
+            console.print(f"[red]Error: Invalid JSON in project specification file[/red]")
+            return None
+        
+        # Load system prompt
+        system_prompt = self.load_prompt()
+        if not system_prompt:
+            return None
+        
+        # Create user prompt with project specification
+        user_prompt = f"""
+Please analyze the following project specification and create a comprehensive technical specification:
+
+PROJECT SPECIFICATION:
+{json.dumps(project_spec, indent=2)}
+
+Based on this specification, provide a detailed technical analysis that will guide the development team in building a production-ready web application. Focus on creating actionable specifications that can be directly implemented.
+
+Remember to:
+1. Extract detailed business requirements and technical needs
+2. Design a scalable and maintainable architecture
+3. Specify all necessary components, APIs, and data models
+4. Create a realistic development roadmap
+5. Consider security, performance, and user experience
+6. Provide enterprise-level specifications
+
+Respond with a comprehensive JSON specification following the format specified in the system prompt.
+        """
+        
+        console.print("[yellow]Generating technical specifications...[/yellow]")
+        
+        # Generate specifications using Ollama
+        response = self.ollama_client.generate(
+            model=self.model,
+            prompt=user_prompt,
+            system=system_prompt,
+            temperature=0.3  # Lower temperature for more consistent technical specs
+        )
+        
+        if not response:
+            console.print("[red]Failed to generate technical specifications[/red]")
+            return None
+        
+        # Parse the JSON response
+        try:
+            # Clean up the response to extract JSON
+            response = response.strip()
+            if response.startswith("```json"):
+                response = response[7:]
+            if response.endswith("```"):
+                response = response[:-3]
+            if response.startswith("```"):
+                response = response[3:]
+            
+            technical_spec = json.loads(response)
+            
+            # Validate the specification has required fields
+            required_fields = ["project_overview", "technical_stack", "features", "data_models"]
+            for field in required_fields:
+                if field not in technical_spec:
+                    console.print(f"[yellow]Warning: Missing required field '{field}' in technical specification[/yellow]")
+            
+            console.print("[green]✅ Technical specifications generated successfully[/green]")
+            return technical_spec
+            
+        except json.JSONDecodeError as e:
+            console.print(f"[red]Error parsing JSON response: {e}[/red]")
+            console.print(f"[red]Response was: {response[:500]}...[/red]")
+            return None
+    
+    def save_technical_spec(self, technical_spec: Dict[str, Any], output_path: str = "data/technical_spec.json") -> bool:
+        """Save the technical specification to a file."""
+        try:
+            os.makedirs(os.path.dirname(output_path), exist_ok=True)
+            
+            with open(output_path, "w") as f:
+                json.dump(technical_spec, f, indent=2)
+            
+            console.print(f"[green]✅ Technical specification saved to {output_path}[/green]")
+            return True
+            
+        except Exception as e:
+            console.print(f"[red]Error saving technical specification: {e}[/red]")
+            return False
+    
+    def display_summary(self, technical_spec: Dict[str, Any]):
+        """Display a summary of the technical specifications."""
+        console.print("\n[bold green]📋 Technical Specification Summary[/bold green]")
+        
+        # Project Overview
+        if "project_overview" in technical_spec:
+            overview = technical_spec["project_overview"]
+            console.print(f"\n[bold cyan]Project:[/bold cyan] {overview.get('name', 'N/A')}")
+            console.print(f"[bold cyan]Description:[/bold cyan] {overview.get('description', 'N/A')}")
+            console.print(f"[bold cyan]Target Audience:[/bold cyan] {overview.get('target_audience', 'N/A')}")
+        
+        # Technical Stack
+        if "technical_stack" in technical_spec:
+            stack = technical_spec["technical_stack"]
+            console.print(f"\n[bold yellow]Tech Stack:[/bold yellow]")
+            for key, value in stack.items():
+                console.print(f"  • {key.title()}: {value}")
+        
+        # Features Count
+        if "features" in technical_spec:
+            features_count = len(technical_spec["features"])
+            high_priority = len([f for f in technical_spec["features"] if f.get("priority") == "high"])
+            console.print(f"\n[bold magenta]Features:[/bold magenta] {features_count} total ({high_priority} high priority)")
+        
+        # Data Models
+        if "data_models" in technical_spec:
+            models_count = len(technical_spec["data_models"])
+            console.print(f"[bold magenta]Data Models:[/bold magenta] {models_count} models defined")
+        
+        # API Endpoints
+        if "api_endpoints" in technical_spec:
+            endpoints_count = len(technical_spec["api_endpoints"])
+            console.print(f"[bold magenta]API Endpoints:[/bold magenta] {endpoints_count} endpoints specified")
+        
+        # Development Phases
+        if "development_phases" in technical_spec:
+            phases_count = len(technical_spec["development_phases"])
+            console.print(f"[bold magenta]Development Phases:[/bold magenta] {phases_count} phases planned")
+    
+    def run(self, project_spec_path: str) -> Optional[str]:
+        """Run the planner agent and return the path to the technical specification."""
+        console.print(f"\n[bold blue]🔄 Starting {self.agent_name}[/bold blue]")
+        
+        # Analyze requirements and generate technical specifications
+        technical_spec = self.analyze_requirements(project_spec_path)
+        
+        if not technical_spec:
+            console.print("[red]❌ Failed to generate technical specifications[/red]")
+            return None
+        
+        # Display summary
+        self.display_summary(technical_spec)
+        
+        # Save technical specification
+        output_path = "data/technical_spec.json"
+        if self.save_technical_spec(technical_spec, output_path):
+            console.print(f"\n[green]✅ {self.agent_name} completed successfully[/green]")
+            return output_path
+        else:
+            console.print(f"\n[red]❌ {self.agent_name} failed to save output[/red]")
+            return None
+
+def main():
+    """Test the planner agent standalone."""
+    ollama_client = OllamaClient()
+    planner = PlannerAgent(ollama_client)
+    
+    # Test with a sample project spec
+    result = planner.run("data/project_spec.json")
+    if result:
+        console.print(f"Technical specification saved to: {result}")
+    else:
+        console.print("Failed to generate technical specification")
+
+if __name__ == "__main__":
+    main()
