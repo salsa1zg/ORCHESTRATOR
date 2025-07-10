@@ -11,7 +11,7 @@ console = Console()
 class PlannerAgent:
     def __init__(self, ollama_client: OllamaClient):
         self.ollama_client = ollama_client
-        self.model = "deepseek-chat"
+        self.model = "llama2:7b-chat"
         self.agent_name = "Planner (Product Manager)"
         
     def load_prompt(self) -> str:

@@ -19,11 +19,11 @@ Transform a simple one-line idea into a complete, production-ready web applicati
 
 | Role | Agent | Model | Responsibilities |
 |------|-------|-------|-----------------|
-| 📋 **Product Manager** | Planner | DeepSeek-Chat | Requirements analysis, technical specifications |
+| 📋 **Product Manager** | Planner | Llama2:7b-Chat | Requirements analysis, technical specifications |
 | 🏗️ **Full-Stack Developer** | Builder | DeepSeek-Coder:33b | Complete application development |
 | 🔍 **Lead Engineer** | Reviewer | DeepSeek-Coder:33b | Code review, quality assurance |
 | 🔧 **Senior Debugger** | Fixer | DeepSeek-Coder:33b | Bug fixes, optimizations |
-| ✅ **QA Engineer** | Finalizer | DeepSeek-Chat | Testing, documentation |
+| ✅ **QA Engineer** | Finalizer | Llama2:7b-Chat | Testing, documentation |
 | 🚀 **DevOps Engineer** | Git Pusher | DeepSeek-Coder:33b | Deployment, Git management |
 
 ## 🚀 Quick Start
@@ -51,7 +51,7 @@ Transform a simple one-line idea into a complete, production-ready web applicati
    
    This will:
    - Install Python dependencies
-   - Download required Ollama models (`deepseek-chat`, `deepseek-coder:33b`)
+   - Download required Ollama models (`llama2:7b-chat`, `deepseek-coder:33b`)
    - Verify all prerequisites
    - Set up the environment
 
@@ -72,7 +72,7 @@ pip install -r requirements.txt
 ollama serve
 
 # Pull required models
-ollama pull deepseek-chat
+ollama pull llama2:7b-chat
 ollama pull deepseek-coder:33b
 
 # Run the orchestrator
@@ -179,7 +179,7 @@ orchestrator/
 ### Ollama Models
 
 The orchestrator uses two models:
-- **deepseek-chat**: For planning, analysis, and documentation
+- **llama2:7b-chat**: For planning, analysis, and documentation
 - **deepseek-coder:33b**: For code generation, review, and debugging
 
 ### Customizing Agents
@@ -266,7 +266,7 @@ ollama serve
 **Model Not Found**
 ```bash
 # Pull required models manually
-ollama pull deepseek-chat
+ollama pull llama2:7b-chat
 ollama pull deepseek-coder:33b
 ```
 

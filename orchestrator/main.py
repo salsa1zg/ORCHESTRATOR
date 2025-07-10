@@ -39,7 +39,7 @@ console = Console()
 class Orchestrator:
     def __init__(self):
         self.ollama_client = OllamaClient()
-        self.required_models = ["deepseek-chat", "deepseek-coder:33b"]
+        self.required_models = ["llama2:7b-chat", "deepseek-coder:33b"]
         self.agents = {
             "planner": PlannerAgent(self.ollama_client),
             "builder": BuilderAgent(self.ollama_client),
@@ -69,11 +69,11 @@ From a one-line idea to a fully deployed application - just like a real dev agen
         team_table.add_column("Model", style="yellow")
         
         team_members = [
-            ("Product Manager", "Planner", "Requirements analysis, technical specifications", "DeepSeek-Chat"),
+            ("Product Manager", "Planner", "Requirements analysis, technical specifications", "Llama2:7b-Chat"),
             ("Full-Stack Developer", "Builder", "Complete application development", "DeepSeek-Coder:33b"),
             ("Lead Engineer", "Reviewer", "Code review, quality assurance", "DeepSeek-Coder:33b"),
             ("Senior Debugger", "Fixer", "Bug fixes, optimizations", "DeepSeek-Coder:33b"),
-            ("QA Engineer", "Finalizer", "Testing, documentation", "DeepSeek-Chat"),
+            ("QA Engineer", "Finalizer", "Testing, documentation", "Llama2:7b-Chat"),
             ("DevOps Engineer", "Git Pusher", "Deployment, Git management", "DeepSeek-Coder:33b")
         ]
         
@@ -95,7 +95,7 @@ From a one-line idea to a fully deployed application - just like a real dev agen
             task = progress.add_task("Checking Ollama service...", total=None)
             
             # Check if Ollama is running
-            if not self.ollama_client.is_model_available("deepseek-chat"):
+            if not self.ollama_client.is_model_available("llama2:7b-chat"):
                 progress.update(task, description="Ollama service not found")
                 console.print("\n[red]❌ Ollama service is not running or not accessible.[/red]")
                 console.print("\n[yellow]Please ensure Ollama is installed and running:[/yellow]")

@@ -78,8 +78,8 @@ curl http://localhost:11434/api/tags
 
 ```bash
 # Pull required models (this will take 15-30 minutes)
-echo "Downloading DeepSeek-Chat..."
-ollama pull deepseek-chat
+echo "Downloading Llama2:7b-Chat..."
+ollama pull llama2:7b-chat
 
 echo "Downloading DeepSeek-Coder:33b..."
 ollama pull deepseek-coder:33b
@@ -91,7 +91,7 @@ ollama list
 **Expected Output:**
 ```
 NAME                    ID              SIZE      MODIFIED
-deepseek-chat:latest    abc123...       3.8GB     2 minutes ago
+llama2:7b-chat:latest  abc123...       3.8GB     2 minutes ago
 deepseek-coder:33b      def456...       19GB      5 minutes ago
 ```
 
@@ -184,7 +184,7 @@ nvidia-smi
 pkill ollama
 
 # Use smaller models for testing
-ollama pull deepseek-chat:7b  # Smaller alternative
+ollama pull llama2:7b-chat  # Main chat model
 ```
 
 ### Persistent Storage Setup
@@ -231,7 +231,7 @@ ollama serve &
 free -h
 
 # Use smaller model
-ollama pull deepseek-chat:7b
+ollama pull llama2:7b-chat
 ```
 
 **3. Model Download Fails**
@@ -240,7 +240,7 @@ ollama pull deepseek-chat:7b
 ping google.com
 
 # Download manually
-ollama pull deepseek-chat --insecure
+ollama pull llama2:7b-chat --insecure
 ```
 
 **4. Generated App Won't Start**
@@ -284,7 +284,7 @@ cd ai-development-team-orchestrator && \
 pip3 install -r requirements.txt
 
 # 3. Download models
-ollama pull deepseek-chat && ollama pull deepseek-coder:33b
+ollama pull llama2:7b-chat && ollama pull deepseek-coder:33b
 
 # 4. Start orchestrator
 python3 main.py
@@ -336,7 +336,7 @@ git clone https://github.com/salsa1zg/ai-development-team-orchestrator.git && cd
 
 ### Download Models:
 ```bash
-ollama pull deepseek-chat && ollama pull deepseek-coder:33b
+ollama pull llama2:7b-chat && ollama pull deepseek-coder:33b
 ```
 
 ### Run Orchestrator:

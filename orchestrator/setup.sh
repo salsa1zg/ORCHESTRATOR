@@ -149,7 +149,7 @@ check_ollama() {
 pull_models() {
     print_status "Pulling required Ollama models..."
     
-    models=("deepseek-chat" "deepseek-coder:33b")
+    models=("llama2:7b-chat" "deepseek-coder:33b")
     
     for model in "${models[@]}"; do
         print_status "Pulling model: $model"
